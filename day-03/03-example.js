@@ -1,13 +1,8 @@
-const fs = require('fs')
-const input = fs.readFileSync('./input.txt', 'utf8')
-
-const LINE = /(.+)/g
 const FABRIC_DATA = /(\d{1,4})/g
-const FABRIC_LENGTH = 1000
 
-const inputArray = input.match(LINE)
-
-const matched = inputArray.map((line) => line.match(FABRIC_DATA))
+const checkForOverlap = (arr) => {
+  return arr.filter((n) => n >= 2)
+}
 
 const fabricMaker = (length) => {
   const fabric = new Array(length)
@@ -75,6 +70,7 @@ const overlappingCounter = (fabric, config) => {
 
     for (let j = 0; j < xCount; j++) {
       fabric[y][x]++
+
       x++
     }
 
@@ -84,23 +80,50 @@ const overlappingCounter = (fabric, config) => {
   return fabric
 }
 
+// Example seems to be working fine
+const FABRIC_LENGTH = 8
+
+const matched = [ '#2 @ 1,3: 4x4', '#1 @ 3,1: 4x4', '#3 @ 5,5: 2x2' ].map((line) => line.match(FABRIC_DATA))
+
 const prototypeFabric = fabricMaker(FABRIC_LENGTH)
 
-const arrayOfConfigs = mapArraysToConfigs(matched)
+const configArray = mapArraysToConfigs(matched)
 
-arrayOfConfigs.forEach((config) => overlappingCounter(prototypeFabric, config))
+configArray.forEach((config) => overlappingCounter(prototypeFabric, config))
 
-const pristineFabricId = arrayOfConfigs
+const cutFabric = prototypeFabric.map((arr) => checkForOverlap(arr)).filter((arr) => arr.length > 0)
+
+const overlappedFabric = [].concat.apply([], cutFabric).length
+
+console.log(
+  `Expected results using example from web:
+........
+...2222.
+...2222.
+.11XX22.
+.11XX22.
+.111133.
+.111133.
+........
+
+Actual Results:
+`,
+  prototypeFabric
+)
+
+console.log(`
+*** Final Answer - Part 1 ***
+${overlappedFabric}
+`)
+
+/**
+ * Part Two
+ */
+
+const pristineFabricId = configArray
   .map((config) => findPristineId(prototypeFabric, config))
   .filter((id) => id != null)
   .pop()
 
-console.log(pristineFabricId)
-
-// const cutFabric = prototypeFabric.map((arr) => checkForOverlap(arr)).filter((arr) => arr.length > 0)
-
-// const overlappedFabric = [].concat.apply([], cutFabric).length
-
-// console.log(`*** Final Answer ***
-// ${overlappedFabric}
-// `)
+console.log(`*** Final Answer = Part 2 ***
+${pristineFabricId}`)
