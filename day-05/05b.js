@@ -20,7 +20,11 @@ function noSameUnits (units) {
     if (firstCase !== secondCase && first.toLowerCase() === second.toLowerCase()) {
       units.splice(i, 2)
 
-      i = i - 2
+      if (i > 0) {
+        i = i - 2
+      } else {
+        i = i - 1
+      }
     }
   }
 
@@ -29,18 +33,19 @@ function noSameUnits (units) {
 
 function filterOutUnits (unit, polymer) {
   const filtered = {}
+  const cleanPolymer = polymer.filter((currentUnit) => currentUnit.toLowerCase() !== unit.toLowerCase())
 
   filtered.filter = unit
-  filtered.cleanPolymer = polymer.filter((currentUnit) => currentUnit.toLowerCase() !== unit.toLowerCase())
+  filtered.cleanPolymer = noSameUnits(cleanPolymer)
+  filtered.size = filtered.cleanPolymer.length
 
-  return filtered
+  return filtered // {filter: 'a', cleanPolymer: ['K', 'f', 'R', ...], size: 9300}
 }
 
-console.log(alphabet.map((ltr) => filterOutUnits(ltr, polymers)))
+const filteredPolymers = alphabet.map((ltr) => filterOutUnits(ltr, polymers))
 
-const cleanPolymer = noSameUnits(polymers)
+const reducedPolymers = filteredPolymers.reduce((prev, curr) => (prev.size < curr.size ? prev : curr))
 
-const cleanUnits = cleanPolymer.length
-
-// console.log(`Cleaned Polymer: ${cleanPolymer.join('')}`)
-console.log(`Number of units in Polymer: ${cleanUnits}`)
+console.log(`*** Day 5 Answer: ***
+Unit Removed: ${reducedPolymers.filter}
+Size of Reduced Polymer: ${reducedPolymers.size}`)
